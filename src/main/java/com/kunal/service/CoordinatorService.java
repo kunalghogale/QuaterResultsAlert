@@ -23,7 +23,7 @@ public class CoordinatorService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Scheduled(cron="0 33 11 ? * MON,TUE,WED,THU,FRI")
+    @Scheduled(cron="0 0 8 ? * MON,TUE,WED,THU,FRI")
     public void start() {
         LocalDate date = LocalDate.now().plusDays(7);
         logger.info("Started for date: " + date);
