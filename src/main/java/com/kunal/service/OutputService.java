@@ -1,16 +1,21 @@
 package com.kunal.service;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.imageio.ImageIO;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
@@ -23,6 +28,8 @@ import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.jasypt.properties.EncryptableProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import com.kunal.vo.StocksVO;
@@ -31,13 +38,32 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
+import gui.ava.html.image.generator.HtmlImageGenerator;
+import twitter4j.StatusUpdate;
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.TwitterFactory;
+import twitter4j.auth.AccessToken;
 
 @Service
-public class SendMailService {
+public class OutputService {
+
+    @Value("${twitter.consumer-key}")
+    private String consumerKey;
+
+    @Value("${twitter.consumer-secret}")
+    private String consumerSecret;
+
+    @Value("${twitter.access-token}")
+    private String accessTokenKey;
+
+    @Value("${twitter.access-token-secret}")
+    private String accessTokenSecret;
+
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public void sendMail(List<StocksVO> stocksVOList, LocalDate date) {
+    public String sendMail(List<StocksVO> stocksVOList, LocalDate date) {
         Properties props = new Properties();
         props.put("mail.smtp.host", "smtp.gmail.com");
         props.put("mail.smtp.socketFactory.port", "465");
@@ -59,9 +85,11 @@ public class SendMailService {
             message.setRecipients(Message.RecipientType.TO,
                 InternetAddress.parse("kunal.ghogale@gmail.com"));
             message.setSubject("Earning Calls For : " + date);
-            message.setText(formatVOsToEmail(stocksVOList, date));
+            String html = formatVOsToEmail(stocksVOList, date);
+            message.setText(html);
             message.setHeader("Content-type", "text/html");
             Transport.send(message);
+            return html;
         } catch (MessagingException e) {
             throw new RuntimeException(e);
         }
@@ -99,5 +127,25 @@ public class SendMailService {
             logger.warn("Error in reading password");
         }
         return props.getProperty("key");
+    }
+
+    public void tweetImage(LocalDate date, String html) {
+
+        try {
+            HtmlImageGenerator imageGenerator = new HtmlImageGenerator();
+            imageGenerator.loadHtml(html);
+            imageGenerator.saveAsImage(date + ".png");
+            Twitter twitter = new TwitterFactory().getInstance();
+            twitter.setOAuthConsumer(consumerKey, consumerSecret);
+            AccessToken accessToken = new AccessToken(accessTokenKey, accessTokenSecret);
+            twitter.setOAuthAccessToken(accessToken);
+            StatusUpdate status = new StatusUpdate("Earnings call for: " + date);
+            status.setMedia("calls", new FileInputStream(date + ".png"));
+            twitter.updateStatus(status);
+        } catch (TwitterException te) {
+            te.printStackTrace();
+        } catch (FileNotFoundException fe) {
+            logger.error("File not found.", fe);
+        }
     }
 }

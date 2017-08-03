@@ -2,6 +2,7 @@ package com.kunal.service;
 
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Service;
 
 import com.kunal.vo.StocksVO;
 
+import static java.util.Comparator.comparing;
+import static java.util.Comparator.reverseOrder;
 @Service
 public class CoordinatorService {
 
@@ -19,7 +22,7 @@ public class CoordinatorService {
     private WebPageService webPageService;
 
     @Autowired
-    private SendMailService sendMailService;
+    private OutputService outputService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -29,8 +32,13 @@ public class CoordinatorService {
         logger.info("Started for date: " + date);
         List<StocksVO> stocksVOList = webPageService.visitWebPage(date);
         logger.info("Stocks found above $1b: " + stocksVOList.size());
+        logger.info("sorting...");
+        Collections.sort(stocksVOList, comparing(StocksVO::getCap, reverseOrder()));
         logger.info("Sending email....");
-        sendMailService.sendMail(stocksVOList, date);
+        String html = outputService.sendMail(stocksVOList, date);
         logger.info("Email sent");
+        logger.info("Tweeting...");
+        outputService.tweetImage(date, html);
+        logger.info("Tweet sent");
     }
 }

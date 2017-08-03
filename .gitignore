@@ -2,5 +2,8 @@ QuaterResultsAlert.iml
 
 .idea
 .idea/*
+target
+target/*
+*.png
 
 quaterresultsalert.log

@@ -3,7 +3,7 @@
     <title>${title}</title>
 </head>
 <body>
-<h1>${title}</h1>
+<h1 align="center">${title}</h1>
 
 <table align="center" border="4">
     <thead>
@@ -17,9 +17,17 @@
 <#list stocks as stock>
     <tr>
         <td>${stock.timeOfDay}</td>
-        <td>${stock.companyName}</td>
+        <td>
+            <#assign url = "http://www.nasdaq.com/symbol/" + stock.symbol + "/real-time">
+            <a href=${url}>${stock.companyName}</a></td>
         <td>${stock.marketCap}</td>
-        <td>${stock.epsForecast}</td>
+        <#if stock.epsForecast?contains("-")>
+            <td bgcolor="red">${stock.epsForecast}</td>
+        <#elseif stock.epsForecast?contains("n/a")>
+            <td>${stock.epsForecast}</td>
+        <#else>
+            <td bgcolor="green">${stock.epsForecast}</td>
+        </#if>
     </tr>
 </#list>
 </table>
