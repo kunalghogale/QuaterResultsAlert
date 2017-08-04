@@ -1,21 +1,18 @@
 package com.kunal.service;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.imageio.ImageIO;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
@@ -29,7 +26,6 @@ import org.jasypt.properties.EncryptableProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import com.kunal.vo.StocksVO;
@@ -139,7 +135,7 @@ public class OutputService {
             twitter.setOAuthConsumer(consumerKey, consumerSecret);
             AccessToken accessToken = new AccessToken(accessTokenKey, accessTokenSecret);
             twitter.setOAuthAccessToken(accessToken);
-            StatusUpdate status = new StatusUpdate("Earnings call for: " + date);
+            StatusUpdate status = new StatusUpdate("Earnings call for: " + date + ". #earnthatmoney #earnings #call");
             status.setMedia("calls", new FileInputStream(date + ".png"));
             twitter.updateStatus(status);
         } catch (TwitterException te) {

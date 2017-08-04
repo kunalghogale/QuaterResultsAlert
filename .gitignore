@@ -5,5 +5,6 @@ QuaterResultsAlert.iml
 target
 target/*
 *.png
+.idea/workspace.xml
 
 quaterresultsalert.log

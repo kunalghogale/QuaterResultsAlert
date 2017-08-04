@@ -10,6 +10,7 @@ public class StocksVO {
     String epsForecast;
     String symbol;
     double cap;
+    float eps;
 
     public StocksVO(String timeOfDay, String companyName, String marketCap, String epsForecast) {
         this.timeOfDay = timeOfDay;
@@ -25,6 +26,7 @@ public class StocksVO {
         } else {
             cap = -1;
         }
+        eps = Float.parseFloat(epsForecast.replace("$", ""));
     }
 
     public String getTimeOfDay() {
@@ -75,6 +77,14 @@ public class StocksVO {
         this.cap = cap;
     }
 
+    public float getEps() {
+        return eps;
+    }
+
+    public void setEps(float eps) {
+        this.eps = eps;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -83,6 +93,7 @@ public class StocksVO {
         StocksVO stocksVO = (StocksVO) o;
 
         if (Double.compare(stocksVO.cap, cap) != 0) return false;
+        if (Float.compare(stocksVO.eps, eps) != 0) return false;
         if (timeOfDay != null ? !timeOfDay.equals(stocksVO.timeOfDay) : stocksVO.timeOfDay != null) return false;
         if (companyName != null ? !companyName.equals(stocksVO.companyName) : stocksVO.companyName != null) return false;
         if (marketCap != null ? !marketCap.equals(stocksVO.marketCap) : stocksVO.marketCap != null) return false;
@@ -101,6 +112,7 @@ public class StocksVO {
         result = 31 * result + (symbol != null ? symbol.hashCode() : 0);
         temp = Double.doubleToLongBits(cap);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (eps != +0.0f ? Float.floatToIntBits(eps) : 0);
         return result;
     }
 
@@ -113,6 +125,7 @@ public class StocksVO {
             ", epsForecast='" + epsForecast + '\'' +
             ", symbol='" + symbol + '\'' +
             ", cap=" + cap +
+            ", eps=" + eps +
             '}';
     }
 }

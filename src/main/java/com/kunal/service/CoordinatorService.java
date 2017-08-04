@@ -33,7 +33,7 @@ public class CoordinatorService {
         List<StocksVO> stocksVOList = webPageService.visitWebPage(date);
         logger.info("Stocks found above $1b: " + stocksVOList.size());
         logger.info("sorting...");
-        Collections.sort(stocksVOList, comparing(StocksVO::getCap, reverseOrder()));
+        Collections.sort(stocksVOList, comparing(StocksVO::getEps, reverseOrder()).thenComparing(StocksVO::getCap, reverseOrder()));
         logger.info("Sending email....");
         String html = outputService.sendMail(stocksVOList, date);
         logger.info("Email sent");
